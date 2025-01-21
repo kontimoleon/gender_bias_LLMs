@@ -1,0 +1,7 @@
+**/__pycache__/
+*/__pycache__/
+/__pycache__/
+data/narratives/*
+data/*
+!data/demographic_dimensions.json
+!data/prompt_templates.json
