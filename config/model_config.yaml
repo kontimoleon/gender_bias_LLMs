@@ -1,0 +1,16 @@
+gemini:
+  model_id:
+
+olmo:
+  model_id:
+
+gpt:
+  provider: "openai"
+  model_id: "gpt-4o-mini"
+
+llama:
+  model_id:
+
+claude:
+  provider: "anthropic"
+  model_id:
