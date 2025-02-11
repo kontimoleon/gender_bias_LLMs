@@ -1,0 +1,6 @@
+{
+    "gender": ["male", "female"],
+    "education": ["low", "medium", "high"],
+    "occupation": [],
+    "civil_status": ["single", "married or in a registered partnership", "divorced or separated", "widowed"]
+}
