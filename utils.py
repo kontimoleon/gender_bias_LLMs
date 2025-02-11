@@ -5,7 +5,7 @@ import logging
 from datetime import datetime
 
 
-def load_config(file_path):
+def load_yaml(file_path):
     with open(file_path) as f:
         config = yaml.safe_load(f)
     return config
