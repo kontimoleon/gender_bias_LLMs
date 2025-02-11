@@ -1,23 +1,9 @@
 overwrite: false
 
 models:
-  gemini: false
-  olmo: false
   gpt: true
   llama: false
-  claude: false
-
-templates:
-  "1": true  # general personal narrative
-  "2": false  # overcoming challenges
-  "3": false  # life-changing event
-  "4": false  # balancing personal and professional life
-  "5": false  # achieving a major goal
-  "6": false  # day in the life
-  "7": false  # personal growth journey
-  "8": false  # impact of education on career
-  "9": false  # reflecting on past decisions
 
 gender_scenarios:
-  assumed: true
+  assumed: false
   defined: true
