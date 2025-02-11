@@ -1,0 +1,60 @@
+gender:
+  - male
+  - female
+
+education_level:
+  - low
+  - medium
+  - high
+
+marital_status:
+  - single
+  - married or in a registered partnership
+  - divorced or separated
+  - widowed
+
+occupation_category:
+  - officers in regular armed forces
+  - non-commissioned officers in regular armed forces
+  - other ranks in regular armed forces
+  - managing directors, board members, senior administrative officials, and members of legislative bodies
+  - managers in commercial fields
+  - managers in production and specialized services
+  - managers in hotels, restaurants, trade, and other services
+  - scientists, mathematicians, and engineers
+  - specialists in health professions
+  - teachers
+  - business economists and similar specialists
+  - specialists in information and communication technology
+  - lawyers, social scientists, and cultural professionals
+  - technical engineers and comparable professionals
+  - healthcare assistant professions
+  - business, administrative, and commercial professionals
+  - legal, social, cultural, and related professionals
+  - information and communication technology professionals
+  - general office and secretarial staff
+  - office workers with customer contact
+  - office staff in finance, accounting, statistics, and material management
+  - other office workers and related professions
+  - personal service occupations
+  - sales personnel
+  - care occupations
+  - security personnel and guards
+  - agricultural specialists
+  - specialists in forestry, fishing, and hunting market production
+  - farmers, fishers, hunters, and gatherers for subsistence
+  - construction and finishing professionals (excluding electricians)
+  - metalworkers, mechanics, polymechanics, production mechanics, and related professions
+  - precision craftsmen, printers, and artistic craft professions
+  - electricians and electronics technicians
+  - food processing, woodworking, clothing production, and related craft professions
+  - operators of stationary equipment and machines
+  - assembly occupations
+  - vehicle drivers and mobile equipment operators
+  - cleaning staff and helpers
+  - laborers in agriculture, forestry, and fishing
+  - laborers in mining, construction, manufacturing, and transportation
+  - kitchen assistants and food preparation helpers
+  - street vendors and street service workers
+  - waste disposal workers and other manual laborers
+  - unemployed
