@@ -7,3 +7,7 @@ models:
 gender_scenarios:
   assumed: false
   defined: true
+
+temperature_values: [1]
+
+samples_per_profile: 1
