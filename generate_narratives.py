@@ -6,73 +6,88 @@ from openai import OpenAI
 
 from utils import load_json, save_json, load_yaml, configure_logging
 
-def set_up_response(model_name, prompt):
+def set_up_response(model_name, prompt, temp_value):
     model_id = load_yaml("./config/model_config.yaml")[model_name]['model_id']
     if model_name == "gpt":
-        response = opeanAI_request(prompt, model_id)
+        response = opeanAI_request(prompt, model_id, temp_value)
     return response
 
 
-def opeanAI_request(prompt, model_id):
-    # TODO: add temperature to the request
+def opeanAI_request(prompt, model_id, temp_value):
     client = OpenAI()
     response = client.chat.completions.create(
         model=model_id,
-        store=True,
+        store=False,
         messages=[
             {"role": "user", "content": prompt}
-        ]
+        ],
+        temperature=temp_value
     )
     return response
 
 
-def generate_single_narrative(model_name, prompt):
-    response = set_up_response(model_name, prompt)
+def generate_single_narrative(model_name, prompt, temp_value):
+    response = set_up_response(model_name, prompt, temp_value)
     return response.choices[0].message.content
 
 
-def generate_narratives_for_model(overwrite, model_name, gender_scenarios):
+def generate_narratives_for_model(
+        model_name,
+        gender_scenarios,
+        temperature_values,
+        samples_per_profile
+    ):
     logging.info(f"Starting narrative generation for model '{model_name}'.")
 
-    for gender_scenario in gender_scenarios:
-        model_id = load_yaml("./config/model_config.yaml")[model_name]['model_id']
-        output_file = f"./data/narratives/{model_id}_gender_{gender_scenario}.json"
+    for temp_value in temperature_values:
+        logging.info(f"Initiating generation with temperature set to '{temp_value}'.")
 
-        logging.info(f"Processing gender scenario '{gender_scenario}'.")
-        
-        if os.path.exists(output_file) and not overwrite:
-            logging.info(f"Output file '{output_file}' exists. Filling in missing narratives.")
-            all_profiles = list(load_json('./data/synthetic_profiles.json').keys())
-            existing_profiles = list(load_json(output_file).keys())
-            profiles = list(set(all_profiles) - set(existing_profiles))
-        else:
-            logging.info(f"Starting fresh or overwriting existing file '{output_file}'.")
-            os.makedirs(os.path.dirname(output_file), exist_ok=True)
+        for gender_scenario in gender_scenarios:
+            model_id = load_yaml("./config/model_config.yaml")[model_name]['model_id']
+
+            logging.info(f"Processing gender scenario '{gender_scenario}'.")
+            output_file = f"./data/narratives/{model_id}_temp{temp_value}_gender_{gender_scenario}.json"
+            
+            if os.path.exists(output_file):
+                logging.info(f"Output file '{output_file}' exists. Filling in missing narratives.")
+                all_profiles = list(load_json('./data/synthetic_profiles.json').keys())
+                existing_profiles = list(load_json(output_file).keys())
+                profiles = list(set(all_profiles) - set(existing_profiles))
+            else:
+                logging.info(f"Starting fresh or overwriting existing file '{output_file}'.")
+                os.makedirs(os.path.dirname(output_file), exist_ok=True)
+                
+
+            prompts = load_json(f'./data/prompts_gender_{gender_scenario}.json')
             profiles = list(load_json('./data/synthetic_profiles.json').keys())
+            
+            logging.info(f"Generating {samples_per_profile} narratives per profile for {len(profiles)} profiles.")
+            for _ in tqdm(range(samples_per_profile), desc="Generating a round of narratives."):
+                for profile in tqdm(profiles):
+                    try:
+                        prompt = next(
+                            filter(lambda item: item['profile_id'] == profile, prompts)
+                        )['prompt_text']
 
-        prompts = load_json(f'./data/prompts_gender_{gender_scenario}.json')
+                        narrative_text = generate_single_narrative(model_name, prompt, temp_value)
+                        narrative_entry = {profile: [narrative_text]}
+                        save_json(narrative_entry, output_file)
+                        logging.info(f"Narrative generated and saved for profile '{profile}'.")
+                    except StopIteration:
+                        logging.error(f"No prompt found for profile '{profile}'. Skipping.")
+                    except Exception as e:
+                        logging.error(f"Error generating narrative for profile '{profile}': {e}")
 
-        # for profile in tqdm(profiles, desc=f"Generating narratives"):
-        for profile in tqdm(['9', '256', '1012'], desc=f"Generating narratives"):
-            try:
-                prompt = next(
-                    filter(lambda item: item['profile_id'] == profile, prompts)
-                )['prompt_text']
-
-                narrative_text = generate_single_narrative(model_name, prompt)
-                narrative_entry = {profile: narrative_text}
-                save_json(narrative_entry, output_file, overwrite)
-                logging.info(f"Narrative generated and saved for profile '{profile}'.")
-            except StopIteration:
-                logging.error(f"No prompt found for profile '{profile}'. Skipping.")
-            except Exception as e:
-                logging.error(f"Error generating narrative for profile '{profile}': {e}")
-
-def generate_narratives(overwrite, model_names, gender_scenarios):
+def generate_narratives(
+        model_name,
+        gender_scenarios,
+        temperature_values,
+        samples_per_profile
+    ):
     logging.info("Starting narrative generation for all models.")
 
     for model_name in tqdm(model_names, desc="Processing models"):
-        generate_narratives_for_model(overwrite, model_name, gender_scenarios)
+        generate_narratives_for_model(model_name, gender_scenarios, temperature_values, samples_per_profile)
 
 
 if __name__ == "__main__":
@@ -80,10 +95,11 @@ if __name__ == "__main__":
 
     config = load_yaml("./config/narrative_config.yaml")
 
-    overwrite = config['overwrite']
     model_names = [model for model in list(config['models'].keys()) if config['models'][model] == True]
     gender_scenarios = [gender for gender, enabled in config["gender_scenarios"].items() if enabled]
+    temperature_values = config['temperature_values']
+    samples_per_profile = config['samples_per_profile']
 
-    generate_narratives(overwrite, model_names, gender_scenarios)
+    generate_narratives(model_names, gender_scenarios, temperature_values, samples_per_profile)
 
     logging.info("Narrative generation completed.")

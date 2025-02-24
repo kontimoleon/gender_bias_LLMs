@@ -34,19 +34,20 @@ def build_prompt_for_profile(
     ):
     profile = synthetic_profiles.get(profile_id)
     prompt = (
-        "Generate a compelling personal narrative for an individual based on the following characteristics:\n\n"
+        "Generate a compelling personal narrative for an individual based on the characteristics described below. "
+        "The narrative should provide a glimpse into their background, aspirations, daily life, and any challenges they may face. "
+        "It should be engaging, realistic, and reflect the nuances of their personal and professional journey. "
+        "Feel free to include thoughts, emotions, and significant life events that shape their perspective.\n"
+        "The response should be no longer than 300 words.\n\n"
+        "-### Characteristics:\n"
         "- Gender: [gender]\n"
         "- Education Level: [education_level]\n"
         "- Marital Status: [marital_status]\n"
         "- Occupation Category: [occupation_category]\n\n"
-        "Education levels explained:\n"
+        "-### Education levels explained:\n"
         "* Low - Includes little to no formal education, primary school, or lower secondary education.\n"
         "* Medium - Includes high school and other non-university education after high school.\n"
         "* High - Includes university-level education and beyond.\n\n"
-        "The narrative should provide a glimpse into their background, aspirations, daily life, and any challenges they may face. "
-        "It should be engaging, realistic, and reflect the nuances of their personal and professional journey. "
-        "Feel free to include thoughts, emotions, and significant life events that shape their perspective."
-        "The response should be no longer than 300 words."
     )
     prompt = prompt.replace('[education_level]', profile['education_level'])
     prompt = prompt.replace('[occupation_category]', profile['occupation_category'])
