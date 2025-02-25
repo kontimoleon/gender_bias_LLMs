@@ -17,9 +17,9 @@ def load_json(file_path):
     return json_data
 
 
-def save_json(data, file_path, overwrite=False):
-    """Write data to a JSON file with the option to overwrite or update the dictionary."""
-    if overwrite or not os.path.exists(file_path):
+def save_json(data, file_path):
+    """Write data to a JSON file with an option to create the file or update the dictionary."""
+    if not os.path.exists(file_path):
         with open(file_path, 'w') as file:
             json.dump(data, file, indent=4)
     else:
@@ -29,7 +29,11 @@ def save_json(data, file_path, overwrite=False):
             except json.JSONDecodeError:
                 existing_data = {}  # Start fresh if the file is empty or corrupt
         if isinstance(existing_data, dict) and isinstance(data, dict):
-            existing_data.update(data)  # Use update to merge dictionaries
+            for key, value in data.items():
+                if key in existing_data and isinstance(existing_data[key], list) and isinstance(value, list):
+                    existing_data[key].extend(value)
+                else:
+                    existing_data[key] = value
         else:
             raise ValueError("Both existing data and new data must be dictionaries.")
         
