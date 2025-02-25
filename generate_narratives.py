@@ -10,11 +10,13 @@ def set_up_response(model_name, prompt, temp_value):
     model_id = load_yaml("./config/model_config.yaml")[model_name]['model_id']
     if model_name == "gpt":
         response = opeanAI_request(prompt, model_id, temp_value)
-    return response
+    return response.choices[0].message.content
 
 
 def opeanAI_request(prompt, model_id, temp_value):
-    client = OpenAI()
+    client = OpenAI(
+        api_key="XXX",
+    )
     response = client.chat.completions.create(
         model=model_id,
         store=False,
@@ -26,10 +28,10 @@ def opeanAI_request(prompt, model_id, temp_value):
     return response
 
 
-def generate_single_narrative(model_name, prompt, temp_value):
-    response = set_up_response(model_name, prompt, temp_value)
-    return response.choices[0].message.content
-
+def generate_narrative_for_profile(profile, model_name, prompt, temp_value):
+    narrative_text = set_up_response(model_name, prompt, temp_value)
+    narrative_entry = {profile: [narrative_text]}
+    return narrative_entry
 
 def generate_narratives_for_model(
         model_name,
@@ -49,12 +51,9 @@ def generate_narratives_for_model(
             output_file = f"./data/narratives/{model_id}_temp{temp_value}_gender_{gender_scenario}.json"
             
             if os.path.exists(output_file):
-                logging.info(f"Output file '{output_file}' exists. Filling in missing narratives.")
-                all_profiles = list(load_json('./data/synthetic_profiles.json').keys())
-                existing_profiles = list(load_json(output_file).keys())
-                profiles = list(set(all_profiles) - set(existing_profiles))
+                logging.info(f"Output file '{output_file}' exists. Appending narratives.")
             else:
-                logging.info(f"Starting fresh or overwriting existing file '{output_file}'.")
+                logging.info(f"Output file: '{output_file}' does not exist. Starting fresh.")
                 os.makedirs(os.path.dirname(output_file), exist_ok=True)
                 
 
@@ -69,9 +68,8 @@ def generate_narratives_for_model(
                             filter(lambda item: item['profile_id'] == profile, prompts)
                         )['prompt_text']
 
-                        narrative_text = generate_single_narrative(model_name, prompt, temp_value)
-                        narrative_entry = {profile: [narrative_text]}
-                        save_json(narrative_entry, output_file)
+                        narrattive_text = generate_narrative_for_profile(profile, model_name, prompt, temp_value)
+                        save_json(narrattive_text, output_file)
                         logging.info(f"Narrative generated and saved for profile '{profile}'.")
                     except StopIteration:
                         logging.error(f"No prompt found for profile '{profile}'. Skipping.")
