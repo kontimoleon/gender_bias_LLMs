@@ -5,3 +5,4 @@
 !data/prompt_templates.json
 logs/*
 data/narratives/*.json
+archive/*
