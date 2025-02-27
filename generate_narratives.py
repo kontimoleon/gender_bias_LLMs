@@ -60,8 +60,8 @@ def generate_narratives_for_model(
             
             logging.info(f"Generating {samples_per_profile} narratives per profile for {len(profiles)} profiles.")
             logging.info(f"Model ID: {model_id}. Gender scenario: {gender_scenario}. Temperature: {temp_value}.")
-            for i in tqdm(range(samples_per_profile), desc="Generating narratives: Round {i}."):
-                logging.info(f"Starting narrative generation, round {i}.")
+            for i in tqdm(range(samples_per_profile), desc=f"Generating narratives: Round {i+1}."):
+                logging.info(f"Starting narrative generation, round {i+1}.")
                 start = time.time()
                 for profile in tqdm(profiles):
                     try:
@@ -78,7 +78,7 @@ def generate_narratives_for_model(
                     except Exception as e:
                         logging.error(f"Error generating narrative for profile '{profile}': {e}")
                 end = time.time()
-                logging.info(f"Narrative generation round {i} completed in {(end - start/3600)} hours.")
+                logging.info(f"Narrative generation round {i+1} completed in {(end - start/3600)} hours.")
 
 def generate_narratives(
         model_name,
