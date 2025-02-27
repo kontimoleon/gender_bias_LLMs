@@ -6,6 +6,6 @@ gender_scenarios:
   assumed: false
   defined: true
 
-temperature_values: [0.2, 0.8, 1]
+temperature_values: [0.2, 0.8]
 
 samples_per_profile: 1
