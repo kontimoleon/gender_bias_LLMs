@@ -1,4 +1,5 @@
 import os
+import time
 import logging
 
 from tqdm import tqdm
@@ -14,9 +15,7 @@ def set_up_response(model_name, prompt, temp_value):
 
 
 def opeanAI_request(prompt, model_id, temp_value):
-    client = OpenAI(
-        api_key="XXX",
-    )
+    client = OpenAI()
     response = client.chat.completions.create(
         model=model_id,
         store=False,
@@ -54,14 +53,16 @@ def generate_narratives_for_model(
                 logging.info(f"Output file '{output_file}' exists. Appending narratives.")
             else:
                 logging.info(f"Output file: '{output_file}' does not exist. Starting fresh.")
-                os.makedirs(os.path.dirname(output_file), exist_ok=True)
-                
+                os.makedirs(os.path.dirname(output_file), exist_ok=True) 
 
             prompts = load_json(f'./data/prompts_gender_{gender_scenario}.json')
             profiles = list(load_json('./data/synthetic_profiles.json').keys())
             
             logging.info(f"Generating {samples_per_profile} narratives per profile for {len(profiles)} profiles.")
-            for _ in tqdm(range(samples_per_profile), desc="Generating a round of narratives."):
+            logging.info(f"Model ID: {model_id}. Gender scenario: {gender_scenario}. Temperature: {temp_value}.")
+            for i in tqdm(range(samples_per_profile), desc="Generating narratives: Round {i}."):
+                logging.info(f"Starting narrative generation, round {i}.")
+                start = time.time()
                 for profile in tqdm(profiles):
                     try:
                         prompt = next(
@@ -70,11 +71,14 @@ def generate_narratives_for_model(
 
                         narrattive_text = generate_narrative_for_profile(profile, model_name, prompt, temp_value)
                         save_json(narrattive_text, output_file)
-                        logging.info(f"Narrative generated and saved for profile '{profile}'.")
+                        # comment out to make log less verbose?
+                        # logging.info(f"Narrative generated and saved for profile '{profile}'.")
                     except StopIteration:
                         logging.error(f"No prompt found for profile '{profile}'. Skipping.")
                     except Exception as e:
                         logging.error(f"Error generating narrative for profile '{profile}': {e}")
+                end = time.time()
+                logging.info(f"Narrative generation round {i} completed in {(end - start/3600)} hours.")
 
 def generate_narratives(
         model_name,
