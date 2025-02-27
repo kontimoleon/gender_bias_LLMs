@@ -60,7 +60,7 @@ def generate_narratives_for_model(
             
             logging.info(f"Generating {samples_per_profile} narratives per profile for {len(profiles)} profiles.")
             logging.info(f"Model ID: {model_id}. Gender scenario: {gender_scenario}. Temperature: {temp_value}.")
-            for i in tqdm(range(samples_per_profile), desc=f"Generating narratives: Round {i+1}."):
+            for i in tqdm(range(samples_per_profile), desc=f"Generating narratives."):
                 logging.info(f"Starting narrative generation, round {i+1}.")
                 start = time.time()
                 for profile in tqdm(profiles):
