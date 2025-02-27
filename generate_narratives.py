@@ -69,8 +69,8 @@ def generate_narratives_for_model(
                             filter(lambda item: item['profile_id'] == profile, prompts)
                         )['prompt_text']
 
-                        narrattive_text = generate_narrative_for_profile(profile, model_name, prompt, temp_value)
-                        save_json(narrattive_text, output_file)
+                        narrative_text = generate_narrative_for_profile(profile, model_name, prompt, temp_value)
+                        save_json(narrative_text, output_file)
                         # comment out to make log less verbose?
                         # logging.info(f"Narrative generated and saved for profile '{profile}'.")
                     except StopIteration:
