@@ -78,7 +78,7 @@ def generate_narratives_for_model(
                     except Exception as e:
                         logging.error(f"Error generating narrative for profile '{profile}': {e}")
                 end = time.time()
-                logging.info(f"Narrative generation round {i+1} completed in {(end - start/3600)} hours.")
+                logging.info(f"Narrative generation round {i+1} completed in {(end - start)/3600} hours.")
 
 def generate_narratives(
         model_name,

@@ -76,7 +76,8 @@ def build_prompts(
 
     for gender_scenario in ['defined', 'assumed']:
         logging.info("Building prompts for gender scenario: %s", gender_scenario)
-
+        if gender_scenario == "assumed":
+            profile_ids = profile_ids[:int(len(profile_ids)/2)]
         all_prompts =  [
             {
                 'profile_id': profile,
