@@ -9,13 +9,19 @@ from utils import load_json, save_json, load_yaml, configure_logging
 
 def set_up_response(model_name, prompt, temp_value):
     model_id = load_yaml("./config/model_config.yaml")[model_name]['model_id']
+
+    # set-up OpenAI client accordingly
     if model_name == "gpt":
-        response = opeanAI_request(prompt, model_id, temp_value)
-    return response.choices[0].message.content
+        client = OpenAI(
+            api_key=os.getenv("OPENAI_API_KEY")
+        )
+    elif model_name in ["deepseek", "llama"]:
+        client = OpenAI(
+            base_url="https://gpu.gess-k8s.ethz.ch/v1-openai", 
+            api_key=os.getenv("GPUSTACK_API_KEY")
+        )
 
-
-def opeanAI_request(prompt, model_id, temp_value):
-    client = OpenAI()
+    # make request to client to retrieve chat completion response
     response = client.chat.completions.create(
         model=model_id,
         store=False,
@@ -24,8 +30,8 @@ def opeanAI_request(prompt, model_id, temp_value):
         ],
         temperature=temp_value
     )
-    return response
-
+    
+    return response.choices[0].message.content
 
 def generate_narrative_for_profile(profile, model_name, prompt, temp_value):
     narrative_text = set_up_response(model_name, prompt, temp_value)
@@ -36,7 +42,8 @@ def generate_narratives_for_model(
         model_name,
         gender_scenarios,
         temperature_values,
-        samples_per_profile
+        samples_per_profile,
+        starting_id
     ):
     logging.info(f"Starting narrative generation for model '{model_name}'.")
 
@@ -56,7 +63,12 @@ def generate_narratives_for_model(
                 os.makedirs(os.path.dirname(output_file), exist_ok=True) 
 
             prompts = load_json(f'./data/prompts_gender_{gender_scenario}.json')
-            profiles = list(load_json('./data/synthetic_profiles.json').keys())
+            if starting_id != 1:
+                # in case we're filling in narratives we only retrieve the relevant profiles
+                profiles = list(load_json('./data/synthetic_profiles.json').keys())[(starting_id-1):]
+                logging.warning(f"You're starting the generation from profile {starting_id}.")
+            else:
+                profiles = list(load_json('./data/synthetic_profiles.json').keys())
             
             logging.info(f"Generating {samples_per_profile} narratives per profile for {len(profiles)} profiles.")
             logging.info(f"Model ID: {model_id}. Gender scenario: {gender_scenario}. Temperature: {temp_value}.")
@@ -84,12 +96,19 @@ def generate_narratives(
         model_name,
         gender_scenarios,
         temperature_values,
-        samples_per_profile
+        samples_per_profile,
+        starting_id = 1
     ):
     logging.info("Starting narrative generation for all models.")
 
     for model_name in tqdm(model_names, desc="Processing models"):
-        generate_narratives_for_model(model_name, gender_scenarios, temperature_values, samples_per_profile)
+        generate_narratives_for_model(
+            model_name,
+            gender_scenarios,
+            temperature_values,
+            samples_per_profile,
+            starting_id
+        )
 
 
 if __name__ == "__main__":
@@ -101,7 +120,12 @@ if __name__ == "__main__":
     gender_scenarios = [gender for gender, enabled in config["gender_scenarios"].items() if enabled]
     temperature_values = config['temperature_values']
     samples_per_profile = config['samples_per_profile']
+    starting_id = config['starting_profile_id']
 
-    generate_narratives(model_names, gender_scenarios, temperature_values, samples_per_profile)
+    kwargs = {}
+    if starting_id is not None:
+        kwargs["starting_id"] = starting_id
+
+    generate_narratives(model_names, gender_scenarios, temperature_values, samples_per_profile, **kwargs)
 
     logging.info("Narrative generation completed.")
