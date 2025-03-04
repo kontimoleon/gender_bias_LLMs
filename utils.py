@@ -76,3 +76,7 @@ def configure_logging(script_name, log_level=logging.INFO):
         filename=log_filename,
         filemode="w"
     )
+
+    # Reduce logging level for API-related libraries
+    logging.getLogger("openai").setLevel(logging.WARNING)  # Suppresses OpenAI logs below WARNING
+    logging.getLogger("httpx").setLevel(logging.WARNING)  # Suppresses HTTPX logs below WARNING
