@@ -42,10 +42,15 @@ def generate_narratives_for_model(
         model_name,
         gender_scenarios,
         samples_per_profile,
-        starting_id,
-        output_suffix
+        **kwargs
     ):
     logging.info(f"Starting narrative generation for model '{model_name}'.")
+
+    # Retrieve optional arguments with defaults first
+    starting_id = kwargs.get("starting_id", 1)
+    output_suffix = kwargs.get("output_suffix") #implicitly defaults to None
+
+    # Load config for specific model
     model_config = load_yaml("./config/model_config.yaml")
     model_id = model_config[model_name]['model_id']
     model_temp_values = model_config[model_name]['temperature_values']
@@ -57,6 +62,7 @@ def generate_narratives_for_model(
 
             logging.info(f"Processing gender scenario '{gender_scenario}'.")
             output_file = f"./data/narratives/{model_id}_temp{temp_value}_gender_{gender_scenario}"
+            print(output_suffix)
             if output_suffix:
                 output_file += f"_{output_suffix}"
             output_file += ".json"
@@ -98,11 +104,10 @@ def generate_narratives_for_model(
                 logging.info(f"Narrative generation round {i+1} completed in {(end - start)/3600} hours.")
 
 def generate_narratives(
-        model_name,
+        model_names,
         gender_scenarios,
         samples_per_profile,
-        starting_id = 1,
-        output_suffix = None
+        **kwargs
     ):
     logging.info("Starting narrative generation for all models.")
 
@@ -111,8 +116,7 @@ def generate_narratives(
             model_name,
             gender_scenarios,
             samples_per_profile,
-            starting_id,
-            output_suffix
+            **kwargs
         )
 
 
@@ -130,6 +134,7 @@ if __name__ == "__main__":
     kwargs = {}
     if starting_id is not None:
         kwargs["starting_id"] = starting_id
+    if output_suffix is not None:
         kwargs["output_suffix"] = output_suffix
 
     generate_narratives(model_names, gender_scenarios, samples_per_profile, **kwargs)
