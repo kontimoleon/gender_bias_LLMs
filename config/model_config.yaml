@@ -3,4 +3,7 @@ gpt:
   model_id: "gpt-4o-mini"
 
 llama:
-  model_id:
+  model_id: "llama3.3-b"
+
+deepseek:
+  model_id: "deepseek-r1"

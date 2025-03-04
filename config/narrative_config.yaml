@@ -1,13 +1,14 @@
 models:
-  gpt: true
-  llama: false
+  gpt: false
+  llama: true
+  deepseek: false
 
 gender_scenarios:
   assumed: false
   defined: true
 
-temperature_values: [0.2, 0.8]
+temperature_values: [0.2]
 
-samples_per_profile: 1
+samples_per_profile: 3
 
 starting_profile_id: null
