@@ -10,3 +10,5 @@ gender_scenarios:
 samples_per_profile: 3
 
 starting_profile_id: null
+
+output_suffix: "local"

@@ -42,7 +42,8 @@ def generate_narratives_for_model(
         model_name,
         gender_scenarios,
         samples_per_profile,
-        starting_id
+        starting_id,
+        output_suffix
     ):
     logging.info(f"Starting narrative generation for model '{model_name}'.")
     model_config = load_yaml("./config/model_config.yaml")
@@ -55,7 +56,10 @@ def generate_narratives_for_model(
         for gender_scenario in gender_scenarios:
 
             logging.info(f"Processing gender scenario '{gender_scenario}'.")
-            output_file = f"./data/narratives/{model_id}_temp{temp_value}_gender_{gender_scenario}.json"
+            output_file = f"./data/narratives/{model_id}_temp{temp_value}_gender_{gender_scenario}"
+            if output_suffix:
+                output_file += f"_{output_suffix}"
+            output_file += ".json"
             
             if os.path.exists(output_file):
                 logging.info(f"Output file '{output_file}' exists. Appending narratives.")
@@ -97,7 +101,8 @@ def generate_narratives(
         model_name,
         gender_scenarios,
         samples_per_profile,
-        starting_id = 1
+        starting_id = 1,
+        output_suffix = None
     ):
     logging.info("Starting narrative generation for all models.")
 
@@ -106,7 +111,8 @@ def generate_narratives(
             model_name,
             gender_scenarios,
             samples_per_profile,
-            starting_id
+            starting_id,
+            output_suffix
         )
 
 
@@ -119,10 +125,12 @@ if __name__ == "__main__":
     gender_scenarios = [gender for gender, enabled in config["gender_scenarios"].items() if enabled]
     samples_per_profile = config['samples_per_profile']
     starting_id = config['starting_profile_id']
+    output_suffix = config['output_suffix']
 
     kwargs = {}
     if starting_id is not None:
         kwargs["starting_id"] = starting_id
+        kwargs["output_suffix"] = output_suffix
 
     generate_narratives(model_names, gender_scenarios, samples_per_profile, **kwargs)
 
