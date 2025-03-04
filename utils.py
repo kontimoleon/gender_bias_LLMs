@@ -43,20 +43,24 @@ def save_json(data, file_path):
 
 def combine_json_files(input_files: list, output_file: str):
     for file in input_files:
+        print(f"Processing {file}...")
         json_data = load_json(file)
         save_json(json_data, output_file)
+        print(f"Combined data saved to {output_file}")
 
 
 def combine_json_files_efficient(input_files: list, output_file: str):
     combined_data = {}
     for file in input_files:
         json_data = load_json(file)
+        print(f"Processing {file}...")
         for key, value in json_data.items():
             if key in combined_data:
                 combined_data[key].extend(value)
             else:
                 combined_data[key] = list(value)  # creates a shallow copy of value, given that it's a list
     save_json(combined_data, output_file)
+    print(f"Combined data saved to {output_file}")
 
 
 def configure_logging(script_name, log_level=logging.INFO):
