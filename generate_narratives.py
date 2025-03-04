@@ -41,17 +41,18 @@ def generate_narrative_for_profile(profile, model_name, prompt, temp_value):
 def generate_narratives_for_model(
         model_name,
         gender_scenarios,
-        temperature_values,
         samples_per_profile,
         starting_id
     ):
     logging.info(f"Starting narrative generation for model '{model_name}'.")
+    model_config = load_yaml("./config/model_config.yaml")
+    model_id = model_config[model_name]['model_id']
+    model_temp_values = model_config[model_name]['temperature_values']
 
-    for temp_value in temperature_values:
+    for temp_value in model_temp_values:
         logging.info(f"Initiating generation with temperature set to '{temp_value}'.")
 
         for gender_scenario in gender_scenarios:
-            model_id = load_yaml("./config/model_config.yaml")[model_name]['model_id']
 
             logging.info(f"Processing gender scenario '{gender_scenario}'.")
             output_file = f"./data/narratives/{model_id}_temp{temp_value}_gender_{gender_scenario}.json"
@@ -95,17 +96,15 @@ def generate_narratives_for_model(
 def generate_narratives(
         model_name,
         gender_scenarios,
-        temperature_values,
         samples_per_profile,
         starting_id = 1
     ):
     logging.info("Starting narrative generation for all models.")
 
-    for model_name in tqdm(model_names, desc="Processing models"):
+    for model_name in model_names:
         generate_narratives_for_model(
             model_name,
             gender_scenarios,
-            temperature_values,
             samples_per_profile,
             starting_id
         )
@@ -118,7 +117,6 @@ if __name__ == "__main__":
 
     model_names = [model for model in list(config['models'].keys()) if config['models'][model] == True]
     gender_scenarios = [gender for gender, enabled in config["gender_scenarios"].items() if enabled]
-    temperature_values = config['temperature_values']
     samples_per_profile = config['samples_per_profile']
     starting_id = config['starting_profile_id']
 
@@ -126,6 +124,6 @@ if __name__ == "__main__":
     if starting_id is not None:
         kwargs["starting_id"] = starting_id
 
-    generate_narratives(model_names, gender_scenarios, temperature_values, samples_per_profile, **kwargs)
+    generate_narratives(model_names, gender_scenarios, samples_per_profile, **kwargs)
 
     logging.info("Narrative generation completed.")
