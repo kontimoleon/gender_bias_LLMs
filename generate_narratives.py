@@ -62,7 +62,6 @@ def generate_narratives_for_model(
 
             logging.info(f"Processing gender scenario '{gender_scenario}'.")
             output_file = f"./data/narratives/{model_id}_temp{temp_value}_gender_{gender_scenario}"
-            print(output_suffix)
             if output_suffix:
                 output_file += f"_{output_suffix}"
             output_file += ".json"
