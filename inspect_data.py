@@ -17,11 +17,11 @@ def write_report_for_narr_file(narr_stats, filename: str, output_file: str):
     no_profiles, consistent_profiles, inconsistent_profiles = narr_stats
 
     entry = (
-        f"inspecting the data for {filename}\n"
+        f"Inspecting the data for {filename}\n"
         f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
         "\n"
         f"Found {no_profiles} profiles in that file.\n"
-        f"Found {len(consistent_profiles.keys())} profiles with {consistent_profiles.values()[0]} narratives.\n"
+        f"Found {len(consistent_profiles.keys())} profiles with consistent narratives.\n"
     )
     if inconsistent_profiles:
         entry += (
