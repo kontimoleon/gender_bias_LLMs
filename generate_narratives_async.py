@@ -78,6 +78,7 @@ async def generate_narratives_for_model(
                 output_file += f"_{output_suffix}"
             output_file += ".json"
             os.makedirs(os.path.dirname(output_file), exist_ok=True)
+            logging.info(f"Writing to {output_file}.")
 
             prompts = load_json(f'./data/prompts_gender_{gender_scenario}.json')
 

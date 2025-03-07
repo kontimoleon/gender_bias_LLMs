@@ -80,3 +80,8 @@ def configure_logging(script_name, log_level=logging.INFO):
     # Reduce logging level for API-related libraries
     logging.getLogger("openai").setLevel(logging.WARNING)  # Suppresses OpenAI logs below WARNING
     logging.getLogger("httpx").setLevel(logging.WARNING)  # Suppresses HTTPX logs below WARNING
+
+
+def append_to_txt_file(data, file_path):
+    with open(file_path, "a", encoding="utf-8") as f:
+        f.write(data)
