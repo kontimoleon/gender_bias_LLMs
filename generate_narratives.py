@@ -46,9 +46,22 @@ def generate_narratives_for_model(
     ):
     logging.info(f"Starting narrative generation for model '{model_name}'.")
 
-    # Retrieve optional arguments with defaults first
-    starting_id = kwargs.get("starting_id", 1)
-    output_suffix = kwargs.get("output_suffix") #implicitly defaults to None
+    # load all profiles once per model
+    all_profiles = list(load_json('./data/synthetic_profiles.json').keys())
+
+    # Retrieve optional arguments with defaults
+    first_id = kwargs.get("first_id", 1)
+    last_id = kwargs.get("last_id") #implicitly defaults to None
+    output_suffix = kwargs.get("output_suffix")
+
+    # check validity of user-input arguments
+    if not (1 <= first_id <= len(all_profiles)):
+        raise ValueError(f"first_profile_id {first_id} out of range. Please adjust the configuration file.")
+    if last_id is not None and not (1 <= last_id <= len(all_profiles)):
+        raise ValueError(f"last_profile_id {last_id} out of range. Please adjust the configuration file.")
+    if last_id is not None and last_id < first_id:
+        raise ValueError(f"first_id ({first_id}) must be <= last_id ({last_id}). Please adjust the configuration file.")
+
 
     # Load config for specific model
     model_config = load_yaml("./config/model_config.yaml")
@@ -56,32 +69,26 @@ def generate_narratives_for_model(
     model_temp_values = model_config[model_name]['temperature_values']
 
     for temp_value in model_temp_values:
-        logging.info(f"Initiating generation with temperature set to '{temp_value}'.")
-
         for gender_scenario in gender_scenarios:
+            logging.info(f"Model ID: {model_id}. Gender scenario: {gender_scenario}. Temperature: {temp_value}.")
 
-            logging.info(f"Processing gender scenario '{gender_scenario}'.")
             output_file = f"./data/narratives/{model_id}_temp{temp_value}_gender_{gender_scenario}"
             if output_suffix:
                 output_file += f"_{output_suffix}"
             output_file += ".json"
-            
-            if os.path.exists(output_file):
-                logging.info(f"Output file '{output_file}' exists. Appending narratives.")
-            else:
-                logging.info(f"Output file: '{output_file}' does not exist. Starting fresh.")
-                os.makedirs(os.path.dirname(output_file), exist_ok=True) 
+            os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
             prompts = load_json(f'./data/prompts_gender_{gender_scenario}.json')
-            if starting_id != 1:
-                # in case we're filling in narratives we only retrieve the relevant profiles
-                profiles = list(load_json('./data/synthetic_profiles.json').keys())[(starting_id-1):]
-                logging.warning(f"You're starting the generation from profile {starting_id}.")
-            else:
-                profiles = list(load_json('./data/synthetic_profiles.json').keys())
+
+            # Apply profile slicing, in case we're filling in narratives
+            first_idx = first_id-1 # profiles are 1-indexed
+            last_idx = last_id if last_id is not None else len(all_profiles) # slicing is exclusive on the upper bound
+            # retrieving relevant profiles
+            profiles = all_profiles[first_idx:last_idx] 
             
+            logging.warning(f"Processing profiles from {first_id} to {last_id if last_id is not None else 'end'}.")
             logging.info(f"Generating {samples_per_profile} narrative(s) per profile for {len(profiles)} profiles.")
-            logging.info(f"Model ID: {model_id}. Gender scenario: {gender_scenario}. Temperature: {temp_value}.")
+
             for i in tqdm(range(samples_per_profile), desc=f"Generating narratives."):
                 logging.info(f"Starting narrative generation, round {i+1}.")
                 start = time.time()
@@ -127,12 +134,15 @@ if __name__ == "__main__":
     model_names = [model for model in list(config['models'].keys()) if config['models'][model] == True]
     gender_scenarios = [gender for gender, enabled in config["gender_scenarios"].items() if enabled]
     samples_per_profile = config['samples_per_profile']
-    starting_id = config['starting_profile_id']
+    first_id = config['first_profile_id']
+    last_id = config['last_profile_id']
     output_suffix = config['output_suffix']
 
     kwargs = {}
-    if starting_id is not None:
-        kwargs["starting_id"] = starting_id
+    if first_id is not None:
+        kwargs["first_id"] = first_id
+    if last_id is not None:
+        kwargs["last_id"] = last_id
     if output_suffix is not None:
         kwargs["output_suffix"] = output_suffix
 
