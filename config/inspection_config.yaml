@@ -1,0 +1,3 @@
+narr_dir: "./data/narratives"
+output_dir: "./data/inspections"
+ends_with: "_sup04.json"

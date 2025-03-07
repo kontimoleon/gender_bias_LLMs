@@ -1,11 +1,11 @@
 import os
 from datetime import datetime
-from utils import load_json, append_to_txt_file
+from utils import load_json, load_yaml, append_to_txt_file
 
 
-def inspect_narratives(narr_dir: str, output_file: str):
+def inspect_narratives(narr_dir: str, output_file: str, ends_with:str):
     for filename in os.listdir(narr_dir):
-        if filename.endswith(".json"):
+        if filename.endswith(ends_with):
             narr_path = os.path.join(narr_dir, filename)
             narr_data = load_json(narr_path)  # Load JSON file
             narr_stats = narrative_statistics(narr_data)  # Analyze statistics
@@ -16,11 +16,11 @@ def write_report_for_narr_file(narr_stats, filename: str, output_file: str):
     no_profiles, consistent_profiles, inconsistent_profiles = narr_stats
 
     entry = (
-        f"Inspecting the data for {filename}\n"
         f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+        f"Inspecting the data for {filename}\n"
         "\n"
         f"Found {no_profiles} profiles in that file.\n"
-        f"Found {len(consistent_profiles)} profiles with consistent narratives.\n"
+        f"Found {len(consistent_profiles)} profiles with consistent narratives: {list(consistent_profiles.values())[0]} each.\n"
     )
 
     if inconsistent_profiles:
@@ -54,8 +54,10 @@ def narrative_statistics(narr_data):
 
 
 if __name__ == "__main__":
-    narr_dir = "./data/narratives"
-    output_dir = "./data/inspections"
+    inspection_config = load_yaml("./config/inspection_config.yaml")
+    narr_dir = inspection_config["narr_dir"]
+    output_dir = inspection_config["output_dir"]
+    ends_with = inspection_config["ends_with"]
     os.makedirs(output_dir, exist_ok=True)
 
     # Create a timestamped report file
@@ -65,4 +67,4 @@ if __name__ == "__main__":
     with open(output_file, "w") as f:
         f.write("")
 
-    inspect_narratives(narr_dir, output_file)
+    inspect_narratives(narr_dir, output_file, ends_with)
