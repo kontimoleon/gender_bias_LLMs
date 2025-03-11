@@ -13,20 +13,25 @@ def inspect_narratives(narr_dir: str, output_file: str, ends_with:str):
 
 
 def write_report_for_narr_file(narr_stats, filename: str, output_file: str):
-    no_profiles, consistent_profiles, inconsistent_profiles = narr_stats
+    no_profiles, unique_counts, inconsistencies = narr_stats
 
     entry = (
+        "\n"
         f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
         f"Inspecting the data for {filename}\n"
         "\n"
         f"Found {no_profiles} profiles in that file.\n"
-        f"Found {len(consistent_profiles)} profiles with consistent narratives: {list(consistent_profiles.values())[0]} each.\n"
-    )
+      )
 
-    if inconsistent_profiles:
-        entry += "The following profiles had irregular numbers of narratives:\n"
-        for pid, counts in inconsistent_profiles.items():
-            entry += f"Profile {pid} has {counts} different narrative counts across files.\n"
+    if len(unique_counts)==1:
+        entry += f"All profiles have the same number of narratives: {unique_counts}\n"
+    else:
+        entry += f"Found inconsistent numbers of narratives across profiles.\n"
+        for k, v in inconsistencies.items():
+            entry += (
+                f"{len(v)} profiles have {k} varratives each.\n"
+                f"Their IDs are: {[i for i in v]}\n"
+            )
 
     entry += "-----------------------------\n"
 
@@ -39,18 +44,21 @@ def narrative_statistics(narr_data):
 
     # Count the number of narratives per profile
     narr_counts = {}
+    unique_counts = set()
     for profile_id, narratives in narr_data.items():
         count = len(narratives)
-        if profile_id not in narr_counts:
-            narr_counts[profile_id] = {count}  # Store in a set to track unique counts
-        else:
-            narr_counts[profile_id].add(count)
+        narr_counts[profile_id] = count  # Store in a set to track unique counts
+        unique_counts.add(count)
 
-    # Identify consistent and inconsistent profiles
-    consistent_profiles = {pid: next(iter(counts)) for pid, counts in narr_counts.items() if len(counts) == 1}
-    inconsistent_profiles = {pid: counts for pid, counts in narr_counts.items() if len(counts) > 1}
+    inconsistencies = {}
+    if len(unique_counts) != 1:
+        for profile_id, count in narr_counts.items():
+          if count in inconsistencies.keys():
+              inconsistencies[count].append(profile_id)
+          else:
+              inconsistencies[count] = [profile_id]
 
-    return no_profiles, consistent_profiles, inconsistent_profiles
+    return no_profiles, unique_counts, inconsistencies
 
 
 if __name__ == "__main__":
