@@ -12,18 +12,18 @@ def load_yaml(file_path):
 
 
 def load_json(file_path):
-    with open(file_path) as f:
+    with open(file_path, encoding='utf-8') as f:
         json_data = json.load(f)
     return json_data
 
 
 def save_json(data, file_path):
-    """Write data to a JSON file with an option to create the file or update the dictionary."""
+    """Write data to a JSON file with proper UTF-8 encoding."""
     if not os.path.exists(file_path):
-        with open(file_path, 'w') as file:
-            json.dump(data, file, indent=4)
+        with open(file_path, 'w', encoding='utf-8') as file:
+            json.dump(data, file, indent=4, ensure_ascii=False)
     else:
-        with open(file_path, 'r') as file:
+        with open(file_path, 'r', encoding='utf-8') as file:
             try:
                 existing_data = json.load(file)
             except json.JSONDecodeError:
@@ -37,8 +37,8 @@ def save_json(data, file_path):
         else:
             raise ValueError("Both existing data and new data must be dictionaries.")
         
-        with open(file_path, 'w') as file:
-            json.dump(existing_data, file, indent=4)
+        with open(file_path, 'w', encoding='utf-8') as file:
+            json.dump(existing_data, file, indent=4, ensure_ascii=False)
 
 
 def combine_json_files(input_files: list, output_file: str):
