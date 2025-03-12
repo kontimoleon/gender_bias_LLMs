@@ -9,7 +9,7 @@ from openai import AsyncOpenAI
 from utils import load_json, save_json, load_yaml, configure_logging
 
 async def set_up_response(model_name, prompt, temp_value):
-    model_id = load_yaml("./config/model_config.yaml")[model_name]['model_id']
+    model_id = load_yaml("./config/narrative_config.yaml")[model_name]['model_id']
 
     # set-up AsyncOpenAI client accordingly
     if model_name == "gpt":
@@ -65,7 +65,7 @@ async def generate_narratives_for_model(
 
 
     # Load config for specific model
-    model_config = load_yaml("./config/model_config.yaml")
+    model_config = load_yaml("./config/narrative_config.yaml")
     model_id = model_config[model_name]['model_id']
     model_temp_values = model_config[model_name]['temperature_values']
 
