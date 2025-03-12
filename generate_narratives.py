@@ -64,7 +64,7 @@ def generate_narratives_for_model(
 
 
     # Load config for specific model
-    model_config = load_yaml("./config/model_config.yaml")
+    model_config = load_yaml("./config/narrative_config.yaml")['models']
     model_id = model_config[model_name]['model_id']
     model_temp_values = model_config[model_name]['temperature_values']
 
@@ -132,7 +132,7 @@ if __name__ == "__main__":
 
     config = load_yaml("./config/narrative_config.yaml")
 
-    model_names = [model for model in list(config['models'].keys()) if config['models'][model] == True]
+    model_names = [model for model in list(config['models'].keys()) if config['models'][model]['include'] == True]
     gender_scenarios = [gender for gender, enabled in config["gender_scenarios"].items() if enabled]
     samples_per_profile = config['samples_per_profile']
     first_id = config['first_profile_id']

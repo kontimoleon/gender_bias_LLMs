@@ -1,7 +1,19 @@
 models:
-  gpt: false
-  llama: true
-  deepseek: false
+  gpt: 
+    include: false
+    provider: "openai"
+    model_id: "gpt-4o-mini"
+    temperature_values: [0.2]
+
+  llama: 
+    include: true
+    model_id: "llama3.3-b"
+    temperature_values: [1.0]
+  
+  deepseek: 
+    include: false
+    model_id: "deepseek-r1"
+    temperature_values: null
 
 gender_scenarios:
   assumed: false
@@ -9,6 +21,7 @@ gender_scenarios:
 
 samples_per_profile: 3
 
-starting_profile_id: null
+first_profile_id: null
+last_profile_id: null
 
-output_suffix: "local"
+output_suffix: "sup04"
