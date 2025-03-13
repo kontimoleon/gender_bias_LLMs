@@ -8,7 +8,7 @@ from openai import OpenAI
 from utils import load_json, save_json, load_yaml, configure_logging
 
 def set_up_response(model_name, prompt, temp_value):
-    model_id = load_yaml("./config/narrative_config.yaml")['models'][model_name]['model_id']
+    model_id = load_yaml("./config/narrative_config_2.yaml")['models'][model_name]['model_id']
 
     # set-up OpenAI client accordingly
     if model_name == "gpt":
@@ -64,7 +64,7 @@ def generate_narratives_for_model(
 
 
     # Load config for specific model
-    model_config = load_yaml("./config/narrative_config.yaml")['models']
+    model_config = load_yaml("./config/narrative_config_2.yaml")['models']
     model_id = model_config[model_name]['model_id']
     model_temp_values = model_config[model_name]['temperature_values']
 
@@ -128,9 +128,9 @@ def generate_narratives(
 
 
 if __name__ == "__main__":
-    configure_logging(script_name='generate_narratives')
+    configure_logging(script_name='generate_narratives_2')
 
-    config = load_yaml("./config/narrative_config.yaml")
+    config = load_yaml("./config/narrative_config_2.yaml")
 
     model_names = [model for model in list(config['models'].keys()) if config['models'][model]['include'] == True]
     gender_scenarios = [gender for gender, enabled in config["gender_scenarios"].items() if enabled]
