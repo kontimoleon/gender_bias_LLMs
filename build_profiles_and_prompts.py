@@ -30,7 +30,7 @@ def build_profiles(
 def build_prompt_for_profile(
       profile_id: str,
       synthetic_profiles: dict,
-      gender_scenario: str = "defined"
+      gender_scenario: str = "given"
     ):
     profile = synthetic_profiles.get(profile_id)
     prompt = (
@@ -53,7 +53,7 @@ def build_prompt_for_profile(
     prompt = prompt.replace('[occupation_category]', profile['occupation_category'])
     prompt = prompt.replace('[marital_status]', profile['marital_status'])
 
-    if gender_scenario == 'defined':
+    if gender_scenario == 'given':
         prompt = prompt.replace('[gender]', profile['gender'])
     else:
         prompt += (
@@ -74,7 +74,7 @@ def build_prompts(
 
     profile_ids = list(synthetic_profiles.keys())
 
-    for gender_scenario in ['defined', 'assumed']:
+    for gender_scenario in ['given', 'assumed']:
         logging.info("Building prompts for gender scenario: %s", gender_scenario)
         if gender_scenario == "assumed":
             profile_ids = profile_ids[:int(len(profile_ids)/2)]
