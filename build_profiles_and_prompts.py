@@ -57,7 +57,7 @@ def build_prompt_for_profile(
         prompt = prompt.replace('[gender]', profile['gender'])
     else:
         prompt += (
-            " Feel free to make assumptions on the gender of the individual (male or female)."
+            " Feel free to make assumptions on the gender of the individual (male or female), based on the provided characteristics."
             "\nExplicitly state the assumed gender in your narrative, starting your response with:"
             "\n\"Assuming the individual is [fill in the blank with assumed gender]\""
         )
