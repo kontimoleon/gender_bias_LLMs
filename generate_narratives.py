@@ -54,15 +54,6 @@ def generate_narratives_for_model(
     last_id = kwargs.get("last_id") #implicitly defaults to None
     output_suffix = kwargs.get("output_suffix")
 
-    # check validity of user-input arguments
-    if not (1 <= first_id <= len(all_profiles)):
-        raise ValueError(f"first_profile_id {first_id} out of range. Please adjust the configuration file.")
-    if last_id is not None and not (1 <= last_id <= len(all_profiles)):
-        raise ValueError(f"last_profile_id {last_id} out of range. Please adjust the configuration file.")
-    if last_id is not None and last_id < first_id:
-        raise ValueError(f"first_id ({first_id}) must be <= last_id ({last_id}). Please adjust the configuration file.")
-
-
     # Load config for specific model
     model_config = load_yaml("./config/narrative_config.yaml")['models']
     model_id = model_config[model_name]['model_id']
@@ -80,6 +71,17 @@ def generate_narratives_for_model(
             logging.info(f"Writing to {output_file}.")
 
             prompts = load_json(f'./data/prompts_gender_{gender_scenario}.json')
+
+            if gender_scenario == 'assumed':
+                all_profiles = all_profiles[:int(len(all_profiles)/2)] # slice the profiles in half
+
+            # check validity of user-input arguments
+            if not (1 <= first_id <= len(all_profiles)):
+                raise ValueError(f"first_profile_id {first_id} out of range. Please adjust the configuration file.")
+            if last_id is not None and not (1 <= last_id <= len(all_profiles)):
+                raise ValueError(f"last_profile_id {last_id} out of range. Please adjust the configuration file.")
+            if last_id is not None and last_id < first_id:
+                raise ValueError(f"first_id ({first_id}) must be <= last_id ({last_id}). Please adjust the configuration file.")
 
             # Apply profile slicing, in case we're filling in narratives
             first_idx = first_id-1 # profiles are 1-indexed
