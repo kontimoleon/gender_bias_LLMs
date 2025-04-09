@@ -1,3 +1,3 @@
 narr_dir: "./data/narratives"
 output_dir: "./logs/inspections"
-ends_with: ".json"
+ends_with: "_assumed_local.json"

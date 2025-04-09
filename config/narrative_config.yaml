@@ -1,14 +1,14 @@
 models:
   gpt: 
-    include: false
+    include: true
     provider: "openai"
     model_id: "gpt-4o-mini"
-    temperature_values: [0.2]
+    temperature_values: [0.0, 0.5, 1.2]
 
   llama: 
     include: true
     model_id: "llama3.3-b"
-    temperature_values: [1.0]
+    temperature_values: [0.0, 0.5, 1.0]
   
   deepseek: 
     include: false
@@ -16,12 +16,12 @@ models:
     temperature_values: null
 
 gender_scenarios:
-  assumed: false
-  defined: true
+  assumed: true
+  given: true
 
-samples_per_profile: 3
+samples_per_profile: 1
 
 first_profile_id: null
 last_profile_id: null
 
-output_suffix: "sup04"
+output_suffix: ""
