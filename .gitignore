@@ -4,6 +4,7 @@
 !data/demographic_dimensions.json
 !data/prompt_templates.json
 logs/*
+data/analysis/*
 data/narratives/*.json
 data/inspections/*
 archive/*
