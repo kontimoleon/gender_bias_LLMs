@@ -46,9 +46,6 @@ def generate_narratives_for_model(
     ):
     logging.info(f"Starting narrative generation for model '{model_name}'.")
 
-    # load all profiles once per model
-    all_profiles = list(load_json('./data/synthetic_profiles.json').keys())
-
     # Retrieve optional arguments with defaults
     first_id = kwargs.get("first_id", 1)
     last_id = kwargs.get("last_id") #implicitly defaults to None
@@ -60,6 +57,8 @@ def generate_narratives_for_model(
     model_temp_values = model_config[model_name]['temperature_values']
 
     for temp_value in model_temp_values:
+        # load all profiles once per model-temp combination
+        all_profiles = list(load_json('./data/synthetic_profiles.json').keys())
         for gender_scenario in gender_scenarios:
             logging.info(f"Model ID: {model_id}. Gender scenario: {gender_scenario}. Temperature: {temp_value}.")
 
