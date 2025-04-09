@@ -9,3 +9,4 @@ data/inspections/*
 archive/*
 notebooks/*
 .env
+*.code-workspace
