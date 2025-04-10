@@ -1,6 +1,5 @@
 {
   "model_name": "gpt-4o-mini",
-  "temperature": 1.2,
   "scenario": "given",
   "sentiment_model": "siebert",
   "batch_size": 1,

@@ -44,18 +44,17 @@ def initialize_sentiment_model(config):
 
 def load_and_filter_data(config):
     """
-    Load the clean narratives DataFrame and filter based on the config.
+    Load the clean narratives DataFrame and filter based on the config (model and scenario only).
     """
     logging.info("Loading narrative data...")
     with open('data/narratives/narrative_df_clean.pkl', 'rb') as f:
         df = pickle.load(f)
     
-    logging.info("Filtering data based on configuration...")
+    logging.info("Filtering data based on model and scenario...")
     model_name = config['model_name']
-    temperature = config['temperature']
     scenario = config['scenario']
     
-    filtered_df = df[(df['model'] == model_name) & (df['temperature'] == temperature) & (df['scenario'] == scenario)]
+    filtered_df = df[(df['model'] == model_name) & (df['scenario'] == scenario)]
     
     return filtered_df
 
