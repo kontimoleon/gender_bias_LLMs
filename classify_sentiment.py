@@ -9,12 +9,13 @@ from tqdm import tqdm
 from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
 from utils import load_yaml, configure_logging
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def predict_robust_sentiment(text, model, tokenizer):
     """
     Predict sentiment using the robust sentiment model.
     """
-    inputs = tokenizer(text.lower(), return_tensors="pt", truncation=True, padding=True, max_length=512)
+    inputs = tokenizer(text.lower(), return_tensors="pt", truncation=True, padding=True, max_length=512).to(device)
     with torch.no_grad():
         outputs = model(**inputs)
     
@@ -35,7 +36,7 @@ def initialize_sentiment_model(config):
         logging.info("Initializing Robust sentiment model...")
         sentiment_model_name = "tabularisai/robust-sentiment-analysis"
         tokenizer = AutoTokenizer.from_pretrained(sentiment_model_name)
-        sentiment_model = AutoModelForSequenceClassification.from_pretrained(sentiment_model_name)
+        sentiment_model = AutoModelForSequenceClassification.from_pretrained(sentiment_model_name).to(device)
     else:
         logging.error("Sentiment model not recognized.")
         raise ValueError("Sentiment model not recognized.")
