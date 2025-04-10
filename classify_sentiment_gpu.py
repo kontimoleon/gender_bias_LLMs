@@ -77,15 +77,15 @@ def process_batch(batch, sentiment_model, tokenizer=None, device=None, model_typ
         return batch
 
     if model_type == 'siebert':
-        logging.info("Processing Siebert sentiment using HF Dataset + pipeline batching...")
-        dataset = Dataset.from_pandas(batch)
-        
-        def predict_batch(examples):
-            results = sentiment_model(examples["text"])
-            return {"siebert": [res["label"] for res in results]}
-        
-        dataset = dataset.map(predict_batch, batched=True, batch_size=32)
-        batch['siebert'] = dataset['siebert']
+        logging.info("Processing Siebert sentiment using batched HF Dataset pipeline...")
+        # Convert to HF dataset with a "text" column
+        dataset = Dataset.from_pandas(batch[['text']].reset_index(drop=True))
+
+        # Apply sentiment pipeline in batches
+        predictions = sentiment_model(dataset['text'], batch_size=32)
+
+        # Extract labels and assign back
+        batch['siebert'] = [p['label'] for p in predictions]
     
     elif model_type == 'robust':
         logging.info("Processing Robust sentiment one-by-one using GPU inference...")
