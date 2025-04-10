@@ -2,6 +2,9 @@ import os
 import json
 import yaml
 import logging
+import pandas as pd
+
+from tqdm import tqdm
 from datetime import datetime
 
 
@@ -150,3 +153,75 @@ def find_identical_narratives(file_path):
     identical_profiles = {tuple(profiles) for profiles in reverse_map.values() if len(profiles) > 1}
 
     return identical_profiles
+
+def load_json_narratives_to_df(narr_dir, narr_files):
+    df_list = [
+        format_narrative_df(pd.read_json(os.path.join(narr_dir,file)), file)
+        for file in tqdm(narr_files, desc="Loading narrative file")
+    ]
+    narr_df = pd.concat(df_list, ignore_index=True)
+
+    return narr_df
+
+def format_narrative_df(df, file_name):
+    print(f"Formatting: {file_name}")
+    df_formatted = df.melt(var_name='profile_id', value_name='text')
+    df_formatted['model'] = file_name.split(sep='_')[0]
+    df_formatted['temperature'] = float(file_name.split(sep='_')[1])
+    df_formatted['scenario'] = file_name.split(sep='_')[2].split(sep='.')[0]
+    df_formatted['sample'] = df_formatted.groupby('profile_id').cumcount() + 1
+
+    return df_formatted
+
+def delete_flagged_row_from_json(
+        flagged_rows,
+        normalized_df,
+        base_path='data/narratives/',
+        overwrite=False
+    ):
+    # Loop through each flagged row to process them
+    for idx in flagged_rows:
+        row = normalized_df.iloc[idx]  # Get the specific row
+        
+        # Reconstruct the JSON filename based on columns in the row
+        model = row['model']
+        temperature = row['temperature']
+        scenario = row['scenario']
+        sample = row['sample']  # 1-indexed
+        profile_id = row['profile_id']  # The profile ID is used as the key in the JSON
+        
+        # Construct the filename based on the row data
+        json_filename = f"{model}_{temperature:.1f}_{scenario}.json"
+        json_filepath = os.path.join(base_path, json_filename)
+        
+        # Check if the file exists before attempting to read
+        if os.path.exists(json_filepath):
+            with open(json_filepath, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            
+            # Check if the profile ID exists in the data
+            profile_key = str(profile_id)  # Convert profile_id to string for matching
+            if profile_key in data:
+                profile_data = data[profile_key]
+                
+                # Ensure the sample is within the valid range of rows for this profile
+                if 1 <= sample <= len(profile_data):
+                    # Delete the problematic sample (1-indexed, so we subtract 1)
+                    del profile_data[sample - 1]
+                    
+                    # If overwrite is True, we save the modified data back to the JSON file
+                    if overwrite:
+                        with open(json_filepath, 'w', encoding='utf-8') as f:
+                            json.dump(data, f, ensure_ascii=False, indent=4)
+                    else:
+                        # Save as a cleaned version with "_clean" suffix
+                        with open(json_filepath.replace('.json', '_clean.json'), 'w', encoding='utf-8') as f:
+                            json.dump(data, f, ensure_ascii=False, indent=4)
+                    
+                    print(f"Deleted sample {sample} (profile ID {profile_id}) from {json_filename}")
+                else:
+                    print(f"Sample {sample} is out of range for profile ID {profile_id} in {json_filename}")
+            else:
+                print(f"Profile ID {profile_id} not found in {json_filename}")
+        else:
+            print(f"File {json_filename} not found.")
