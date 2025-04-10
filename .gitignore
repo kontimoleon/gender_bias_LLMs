@@ -5,7 +5,7 @@
 !data/prompt_templates.json
 logs/*
 data/analysis/*
-data/narratives/*.json
+data/narratives/*
 data/inspections/*
 archive/*
 notebooks/*
