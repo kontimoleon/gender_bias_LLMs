@@ -58,7 +58,6 @@ def calculate_regard(df, profile_ids, model, scenario):
             }]
         )
         regard_results.append(profile_regard)
-        break
 
     # Save results as a DataFrame
     regard_df = pd.concat(regard_results)
