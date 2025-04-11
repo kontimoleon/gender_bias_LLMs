@@ -3,9 +3,8 @@ import pickle
 import evaluate
 import logging
 import pandas as pd
-
 from tqdm import tqdm
-from datasets import Dataset
+from datasets import Dataset, DatasetDict
 from utils import configure_logging, load_yaml
 from classify_sentiment import load_and_filter_data
 
@@ -36,31 +35,29 @@ def save_final_result(result_list, model_name, scenario):
     with open(final_filename, 'wb') as f:
         pickle.dump(final_df, f)
 
-def classify_regard(df, batch_ids):
-    batch_results = []
-    for pid in tqdm(batch_ids):
-        try:
-            # Filter texts by profile ID (ensure we are processing by profile)
-            texts = df[df["profile_id"] == pid]["text"].tolist()
-            
-            # Compute the average regard for the texts of this profile
-            avg_result = regard.compute(data=texts, aggregation="average")['average_regard']
-            
-            # Prepare the result
-            profile_regard = pd.DataFrame([{
-                "profile_id": pid,
-                "gender": "male" if pid in male_profiles else "female",
-                "positive_regard": avg_result['positive'],
-                "negative_regard": avg_result['negative'],
-                "neutral_regard": avg_result['neutral'],
-                "other_regard": avg_result['other']
-            }])
-            batch_results.append(profile_regard)
-        except Exception as e:
-            logging.error(f"Error computing regard for profile {pid}: {e}")
+def classify_regard(batch_data):
+    """
+    Classify sentiment for the entire batch of profile texts at once.
+    """
+    # Use Hugging Face pipeline to process entire batch
+    texts = batch_data["text"]
+    avg_result = regard.compute(data=texts, aggregation="average")['average_regard']
     
-    # Combine all results from this batch
-    return pd.concat(batch_results)
+    # Prepare the result
+    batch_results = []
+    for idx, pid in enumerate(batch_data["profile_id"]):
+        profile_regard = {
+            "profile_id": pid,
+            "gender": "male" if pid in male_profiles else "female",
+            "positive_regard": avg_result['positive'][idx],
+            "negative_regard": avg_result['negative'][idx],
+            "neutral_regard": avg_result['neutral'][idx],
+            "other_regard": avg_result['other'][idx]
+        }
+        batch_results.append(profile_regard)
+    
+    # Return the result as a DataFrame
+    return pd.DataFrame(batch_results)
 
 if __name__ == "__main__":
     configure_logging(script_name="classify_regard")
@@ -94,7 +91,7 @@ if __name__ == "__main__":
             batch_data = dataset.filter(lambda x: x["profile_id"] in batch_ids)
 
             # Apply the classification function to this batch of profiles
-            batch = classify_regard(filtered_df, batch_ids)
+            batch = classify_regard(batch_data)
 
             result_list.append(batch)
             
