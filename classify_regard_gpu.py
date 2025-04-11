@@ -36,24 +36,31 @@ def save_final_result(result_list, model_name, scenario):
     with open(final_filename, 'wb') as f:
         pickle.dump(final_df, f)
 
-def classify_regard(dataset):
+def classify_regard(df, batch_ids):
     batch_results = []
-    for entry in tqdm(dataset):
+    for pid in tqdm(batch_ids):
         try:
-            texts = entry["text"]
+            # Filter texts by profile ID (ensure we are processing by profile)
+            texts = df[df["profile_id"] == pid]["text"].tolist()
+            
+            # Compute the average regard for the texts of this profile
             avg_result = regard.compute(data=texts, aggregation="average")['average_regard']
-            profile_regard = {
-                "profile_id": entry["profile_id"],
-                "gender": "male" if entry["profile_id"] in male_profiles else "female",
+            
+            # Prepare the result
+            profile_regard = pd.DataFrame([{
+                "profile_id": pid,
+                "gender": "male" if pid in male_profiles else "female",
                 "positive_regard": avg_result['positive'],
                 "negative_regard": avg_result['negative'],
                 "neutral_regard": avg_result['neutral'],
                 "other_regard": avg_result['other']
-            }
+            }])
             batch_results.append(profile_regard)
         except Exception as e:
-            logging.error(f"Error computing regard for profile {entry['profile_id']}: {e}")
-    return batch_results
+            logging.error(f"Error computing regard for profile {pid}: {e}")
+    
+    # Combine all results from this batch
+    return pd.concat(batch_results)
 
 if __name__ == "__main__":
     configure_logging(script_name="classify_regard")
@@ -64,8 +71,9 @@ if __name__ == "__main__":
         
         # Load and filter data
         filtered_df = load_and_filter_data(config)
-        logging.info(f"Total profiles to process: {len(filtered_df)}")
-
+        profile_ids = sorted(filtered_df['profile_id'].unique())
+        logging.info(f"Total profiles to process: {len(profile_ids)}")
+        
         # Convert pandas DataFrame to Hugging Face Dataset
         dataset = Dataset.from_pandas(filtered_df[['profile_id', 'text']])
         
@@ -77,13 +85,16 @@ if __name__ == "__main__":
         start_index = start_batch * batch_size
 
         # Process the data in batches
-        for i in range(start_index, len(dataset), batch_size):
-            batch_data = dataset[i:i+batch_size]
+        for i in range(start_index, len(profile_ids), batch_size):
+            batch_ids = profile_ids[i:i+batch_size]
             current_batch_size = i // batch_size + 1
             logging.info(f"Processing batch {current_batch_size}...")
 
-            # Apply sentiment analysis to the batch
-            batch = classify_regard(batch_data)
+            # Filter the dataset to include only the profiles in the current batch
+            batch_data = dataset.filter(lambda x: x["profile_id"] in batch_ids)
+
+            # Apply the classification function to this batch of profiles
+            batch = classify_regard(filtered_df, batch_ids)
 
             result_list.append(batch)
             
