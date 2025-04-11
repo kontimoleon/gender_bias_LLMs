@@ -1,7 +1,14 @@
-{
-  "model_name": "gpt-4o-mini",
-  "scenario": "given",
-  "sentiment_model": "siebert",
-  "batch_size": 1,
-  "start_batch": 0,
+{ "sentiment": {
+    "model_name": "gpt-4o-mini",
+    "scenario": "given",
+    "sentiment_model": "siebert",
+    "batch_size": 2000,
+    "start_batch": 0,
+  },
+  "regard": {
+    "model_name": "gpt-4o-mini",
+    "scenario": "given",
+    "batch_size": 2,
+    "start_batch": 0,
+  },
 }
