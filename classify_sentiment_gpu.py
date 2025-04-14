@@ -131,7 +131,7 @@ if __name__ == "__main__":
     try:
         # Load config
         logging.info("Loading configuration...")
-        config = load_yaml('config/analysis_config.yaml')
+        config = load_yaml('config/analysis_config.yaml')['sentiment']
         
         # Load and filter data
         filtered_df = load_and_filter_data(config)
