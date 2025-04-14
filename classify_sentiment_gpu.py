@@ -51,12 +51,6 @@ def initialize_sentiment_model(config):
         sentiment_model = pipeline("sentiment-analysis", model=model_name, tokenizer=model_name, device=device)
         return sentiment_model, None, device
 
-    elif model_type == 'bert-base':
-        logging.info("Initializing BERT-base Uncased sentiment model with GPU support...")
-        model_name = "google-bert/bert-base-uncased"
-        sentiment_model = pipeline("fill-mask", model=model_name, tokenizer=model_name, device=device)
-        return sentiment_model, None, device
-
     else:
         logging.error("Sentiment model not recognized.")
         raise ValueError("Sentiment model not recognized.")
