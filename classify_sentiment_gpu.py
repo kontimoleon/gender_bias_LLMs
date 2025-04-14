@@ -49,7 +49,7 @@ def initialize_sentiment_model(config):
         logging.info("Initializing BERT-base Multilingual Uncased sentiment model with GPU support...")
         model_name="nlptown/bert-base-multilingual-uncased-sentiment"
         tokenizer = AutoTokenizer.from_pretrained("nlptown/bert-base-multilingual-uncased-sentiment")
-        sentiment_model = AutoModelForSequenceClassification.from_pretrained("nlptown/bert-base-multilingual-uncased-sentiment")
+        sentiment_model = AutoModelForSequenceClassification.from_pretrained("nlptown/bert-base-multilingual-uncased-sentiment").to(device)
         return sentiment_model, tokenizer, device    
 
     else:
