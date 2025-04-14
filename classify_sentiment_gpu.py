@@ -67,6 +67,7 @@ def load_and_filter_data(config):
     logging.info("Filtering data based on model and scenario...")
     model_name = config['model_name']
     scenario = config['scenario']
+    logging.info(f"Model: {model_name} | Scenario: {scenario}")
     
     filtered_df = df[(df['model'] == model_name) & (df['scenario'] == scenario)]
     
