@@ -49,7 +49,13 @@ def initialize_sentiment_model(config):
         logging.info("Initializing BERT-base Multilingual Uncased sentiment model with GPU support...")
         model_name = "nlptown/bert-base-multilingual-uncased-sentiment"
         sentiment_model = pipeline("sentiment-analysis", model=model_name, tokenizer=model_name, device=device)
-        return sentiment_model, None, device  
+        return sentiment_model, None, device
+
+    elif model_type == 'bert-base':
+        logging.info("Initializing BERT-base Uncased sentiment model with GPU support...")
+        model_name = "google-bert/bert-base-uncased"
+        sentiment_model = pipeline("fill-mask", model=model_name, tokenizer=model_name, device=device)
+        return sentiment_model, None, device
 
     else:
         logging.error("Sentiment model not recognized.")
@@ -83,8 +89,14 @@ def process_batch(batch, sentiment_model, tokenizer=None, device=None, model_typ
         logging.error("Sentiment model is None. Skipping batch.")
         return batch
 
-    if model_type == 'siebert':
-        logging.info("Processing Siebert sentiment using batched HF Dataset pipeline...")
+    if model_type == 'robust':
+            logging.info("Processing Robust sentiment one-by-one using GPU inference...")
+            batch['robust_sentiment'] = batch['text'].progress_apply(
+                lambda x: predict_robust_sentiment(x, sentiment_model, tokenizer, device)
+            )
+
+    else:
+        logging.info("Processing sentiment using batched HF Dataset pipeline...")
         # Convert to HF dataset with a "text" column
         dataset = Dataset.from_pandas(batch[['text']].reset_index(drop=True))
 
@@ -93,24 +105,7 @@ def process_batch(batch, sentiment_model, tokenizer=None, device=None, model_typ
 
         # Extract labels and assign back
         batch['siebert'] = [p['label'] for p in predictions]
-    
-    elif model_type == 'bert-base-multilingual':
-        logging.info("Processing BERT-base Multilingual Uncased sentiment using batched HF Dataset pipeline...")
-        # Convert to HF dataset with a "text" column
-        dataset = Dataset.from_pandas(batch[['text']].reset_index(drop=True))
 
-        # Apply sentiment pipeline in batches
-        predictions = sentiment_model(dataset['text'], batch_size=32)
-
-        # Extract labels and assign back
-        batch['bert-base'] = [p['label'] for p in predictions]
-
-    elif model_type == 'robust':
-        logging.info("Processing Robust sentiment one-by-one using GPU inference...")
-        batch['robust_sentiment'] = batch['text'].progress_apply(
-            lambda x: predict_robust_sentiment(x, sentiment_model, tokenizer, device)
-        )
-    
     return batch
 
 
