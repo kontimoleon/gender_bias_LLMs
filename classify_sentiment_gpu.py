@@ -34,7 +34,7 @@ def initialize_sentiment_model(config):
     model_type = config['sentiment_model']
     
     if model_type == 'siebert':
-        logging.info("Initializing Siebert sentiment model with GPU support...")
+        logging.info("Initializing SiEBERT sentiment model with GPU support...")
         sentiment_model = pipeline("sentiment-analysis", model="siebert/sentiment-roberta-large-english", device=device)
         return sentiment_model, None, device
     
@@ -45,6 +45,13 @@ def initialize_sentiment_model(config):
         sentiment_model = AutoModelForSequenceClassification.from_pretrained(model_name).to(device)
         return sentiment_model, tokenizer, device
     
+    elif model_type == 'bert-base-multilingual':
+        logging.info("Initializing BERT-base Multilingual Uncased sentiment model with GPU support...")
+        model_name="nlptown/bert-base-multilingual-uncased-sentiment"
+        tokenizer = AutoTokenizer.from_pretrained("nlptown/bert-base-multilingual-uncased-sentiment")
+        sentiment_model = AutoModelForSequenceClassification.from_pretrained("nlptown/bert-base-multilingual-uncased-sentiment")
+        return sentiment_model, tokenizer, device    
+
     else:
         logging.error("Sentiment model not recognized.")
         raise ValueError("Sentiment model not recognized.")
@@ -87,7 +94,7 @@ def process_batch(batch, sentiment_model, tokenizer=None, device=None, model_typ
         # Extract labels and assign back
         batch['siebert'] = [p['label'] for p in predictions]
     
-    elif model_type == 'robust':
+    elif model_type == 'robust' or model_type == 'bert-base-multilingual':
         logging.info("Processing Robust sentiment one-by-one using GPU inference...")
         batch['robust_sentiment'] = batch['text'].progress_apply(
             lambda x: predict_robust_sentiment(x, sentiment_model, tokenizer, device)
