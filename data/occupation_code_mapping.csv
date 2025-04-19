@@ -1,0 +1,45 @@
+occupation_code,occupation_label
+01,Officers in regular armed forces
+02,Non-commissioned officers in regular armed forces
+03,Other ranks in regular armed forces
+11,"Managing directors, board members, senior administrative officials, and members of legislative bodies"
+12,Managers in commercial fields
+13,Managers in production and specialized services
+14,"Managers in hotels, restaurants, trade, and other services"
+21,"Scientists, mathematicians, and engineers"
+22,Specialists in health professions
+23,Teachers
+24,Business economists and similar specialists
+25,Specialists in information and communication technology
+26,"Lawyers, social scientists, and cultural professionals"
+31,Technical engineers and comparable professionals
+32,Healthcare assistant professions
+33,"Business, administrative, and commercial professionals"
+34,"Legal, social, cultural, and related professionals"
+35,Information and communication technology professionals
+41,General office and secretarial staff
+42,Office workers with customer contact
+43,"Office staff in finance, accounting, statistics, and material management"
+44,Other office workers and related professions
+51,Personal service occupations
+52,Sales personnel
+53,Care occupations
+54,Security personnel and guards
+61,Agricultural specialists
+62,"Specialists in forestry, fishing, and hunting market production"
+63,"Farmers, fishers, hunters, and gatherers for subsistence"
+71,Construction and finishing professionals (excluding electricians)
+72,"Metalworkers, mechanics, polymechanics, production mechanics, and related professions"
+73,"Precision craftsmen, printers, and artistic craft professions"
+74,Electricians and electronics technicians
+75,"Food processing, woodworking, clothing production, and related craft professions"
+81,Operators of stationary equipment and machines
+82,Assembly occupations
+83,Vehicle drivers and mobile equipment operators
+91,Cleaning staff and helpers
+92,"Laborers in agriculture, forestry, and fishing"
+93,"Laborers in mining, construction, manufacturing, and transportation"
+94,Kitchen assistants and food preparation helpers
+95,Street vendors and street service workers
+96,Waste disposal workers and other manual laborers
+00,Unemployed
