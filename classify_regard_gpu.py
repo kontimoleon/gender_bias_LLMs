@@ -6,7 +6,7 @@ import pandas as pd
 from tqdm import tqdm
 from datasets import Dataset
 from utils import configure_logging, load_yaml
-from classify_sentiment import load_and_filter_data
+from classify_sentiment import load_and_filter_narrative_dataframe
 
 regard = evaluate.load("regard")
 
