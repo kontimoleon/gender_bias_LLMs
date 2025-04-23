@@ -56,7 +56,7 @@ def initialize_sentiment_model(config):
         raise ValueError("Sentiment model not recognized.")
 
 
-def load_and_filter_data(config):
+def load_and_filter_narrative_dataframe(config):
     """
     Load the clean narratives DataFrame and filter based on the config (model and scenario only).
     """
@@ -134,7 +134,7 @@ if __name__ == "__main__":
         config = load_yaml('config/analysis_config.yaml')['sentiment']
         
         # Load and filter data
-        filtered_df = load_and_filter_data(config)
+        filtered_df = load_and_filter_narrative_dataframe(config)
         
         # Initialize sentiment model
         sentiment_model, tokenizer, device = initialize_sentiment_model(config)

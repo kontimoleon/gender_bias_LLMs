@@ -43,7 +43,7 @@ def initialize_sentiment_model(config):
     
     return sentiment_model, tokenizer if config['sentiment_model'] == 'robust' else None
 
-def load_and_filter_data(config):
+def load_and_filter_narrative_dataframe(config):
     """
     Load the clean narratives DataFrame and filter based on the config (model and scenario only).
     """
@@ -54,6 +54,7 @@ def load_and_filter_data(config):
     logging.info("Filtering data based on model and scenario...")
     model_name = config['model_name']
     scenario = config['scenario']
+    logging.info(f"Model: {model_name} | Scenario: {scenario}")
     
     filtered_df = df[(df['model'] == model_name) & (df['scenario'] == scenario)]
     
@@ -104,7 +105,7 @@ if __name__ == "__main__":
         config = load_yaml('config/analysis_config.yaml')['sentiment']
         
         # Load and filter data
-        filtered_df = load_and_filter_data(config)
+        filtered_df = load_and_filter_narrative_dataframe(config)
         
         # Initialize sentiment model
         sentiment_model, tokenizer = initialize_sentiment_model(config)

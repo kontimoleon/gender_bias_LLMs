@@ -64,7 +64,7 @@ if __name__ == "__main__":
         config = load_yaml('config/analysis_config.yaml')['regard']
         
         # Load and filter data
-        filtered_df = load_and_filter_data(config)
+        filtered_df = load_and_filter_narrative_dataframe(config)
         profile_ids = sorted(filtered_df['profile_id'].unique())
         logging.info(f"Total profiles to process: {len(profile_ids)}")
         
