@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-from utils import load_json, load_yaml, append_to_txt_file
+from scripts.utils import load_json, load_yaml, append_to_txt_file
 
 
 def inspect_narratives(narr_dir: str, output_file: str, ends_with:str):

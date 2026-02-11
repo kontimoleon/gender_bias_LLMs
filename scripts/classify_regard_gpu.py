@@ -1,11 +1,11 @@
 import os
 import pickle
-import evaluate 
+import evaluate
 import logging
 import pandas as pd
-
 from tqdm import tqdm
-from utils import configure_logging, load_yaml
+from datasets import Dataset
+from scripts.utils import configure_logging, load_yaml
 from classify_sentiment import load_and_filter_narrative_dataframe
 
 regard = evaluate.load("regard")
@@ -35,24 +35,26 @@ def save_final_result(result_list, model_name, scenario):
     with open(final_filename, 'wb') as f:
         pickle.dump(final_df, f)
 
-def classify_regard(df, batch_ids):
-    batch_results = []
-    for pid in tqdm(batch_ids):
-        try:
-            texts = df[df["profile_id"] == pid]["text"].tolist()
-            avg_result = regard.compute(data=texts, aggregation="average")['average_regard']
-            profile_regard = pd.DataFrame([{
-                "profile_id": pid,
-                "gender": "male" if pid in male_profiles else "female",
-                "positive_regard": avg_result['positive'],
-                "negative_regard": avg_result['negative'],
-                "neutral_regard": avg_result['neutral'],
-                "other_regard": avg_result['other']
-            }])
-            batch_results.append(profile_regard)
-        except Exception as e:
-            logging.error(f"Error computing regard for profile {pid}: {e}")
-    return pd.concat(batch_results)
+def classify_regard(profile_data):
+    """
+    Classify regard for a single profile.
+    """
+    # Use Hugging Face pipeline to process the single profile's texts
+    texts = profile_data["text"]
+    avg_result = regard.compute(data=texts, aggregation="average")['average_regard']
+    
+    # Prepare the result
+    profile_regard = {
+        "profile_id": profile_data["profile_id"][0],
+        "gender": "male" if profile_data["profile_id"][0] in male_profiles else "female",
+        "positive_regard": avg_result['positive'],
+        "negative_regard": avg_result['negative'],
+        "neutral_regard": avg_result['neutral'],
+        "other_regard": avg_result['other']
+    }
+
+    # Return the result as a DataFrame
+    return pd.DataFrame([profile_regard])
 
 if __name__ == "__main__":
     configure_logging(script_name="classify_regard")
@@ -66,27 +68,25 @@ if __name__ == "__main__":
         profile_ids = sorted(filtered_df['profile_id'].unique())
         logging.info(f"Total profiles to process: {len(profile_ids)}")
         
-        # Batch processing
-        batch_size = config['batch_size']
+        # Convert pandas DataFrame to Hugging Face Dataset
+        dataset = Dataset.from_pandas(filtered_df[['profile_id', 'text']])
+        
         result_list = []
         
-        start_batch = config['start_batch']
-        start_index = start_batch * batch_size
+        # Process each profile separately
+        for profile_id in profile_ids:
+            # Filter the dataset to include only the current profile's data
+            profile_data = dataset.filter(lambda x: x["profile_id"] == profile_id)
 
-        # Process the data in batches
-        for i in range(0, len(profile_ids), batch_size):
-            batch_ids = profile_ids[i:i+batch_size]
-            tqdm.pandas()
-            current_batch_size = i // batch_size + 1
-            logging.info(f"Processing batch {current_batch_size}...")
+            logging.info(f"Processing profile {profile_id}...")
 
-            # Apply sentiment analysis to the batch
-            batch = classify_regard(filtered_df, batch_ids)
+            # Apply the classification function to this profile
+            batch = classify_regard(profile_data)
 
             result_list.append(batch)
             
-            # Save intermediate batch
-            save_batch(batch, config['model_name'], config['scenario'], current_batch_size)
+            # Save intermediate batch (optional, can be skipped)
+            save_batch(batch, config['model_name'], config['scenario'], profile_id)
         
         # Save final results
         save_final_result(result_list, config['model_name'], config['scenario'])

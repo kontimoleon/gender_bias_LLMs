@@ -5,7 +5,7 @@ import logging
 from tqdm import tqdm
 from openai import OpenAI
 
-from utils import load_json, save_json, load_yaml, configure_logging
+from scripts.utils import load_json, save_json, load_yaml, configure_logging
 
 def set_up_response(model_name, prompt, temp_value):
     model_id = load_yaml("./config/narrative_config.yaml")['models'][model_name]['model_id']

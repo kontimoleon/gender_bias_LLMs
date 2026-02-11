@@ -3,7 +3,7 @@ import itertools
 import logging
 
 from tqdm import tqdm
-from utils import load_yaml, load_json, save_json, configure_logging
+from scripts.utils import load_yaml, load_json, save_json, configure_logging
 
 
 def build_profiles(
